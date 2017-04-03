@@ -5,6 +5,7 @@ import socket
 import os
 import json
 import struct
+import yaml
 
 # start listening
 class master:
@@ -40,6 +41,7 @@ class master:
         file_size = f.tell()
         f.seek(0,0)
         print 'Sending...'
+        print 'file size:%d'%file_size
         self.send_int(file_size)
         while True:
             chunk = f.read(chunk_size)
@@ -51,8 +53,7 @@ class master:
 
 
 if __name__ == "__main__":
-    conf = ConfigParser.ConfigParser()
-    conf.read('./slave.config')
     master = master()
-    args = {'content':'yourname.jpg','style':'yourname.jpg'}
-    master.dispatch('127.0.0.1',8666,args)
+    args = {'content':'sanfrancisco.jpg','style':'starry_night.jpg','model':'vgg16','ratio':1e4}
+    master.dispatch('10.0.0.64',8667,args)
+    # master.dispatch('127.0.0.1', 8666, args)

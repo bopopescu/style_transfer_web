@@ -6,7 +6,8 @@ import json
 import struct
 import os
 import time
-
+from transfer import transfer
+import yaml
 
 # logging
 LOG_FORMAT = "%(filename)s:%(funcName)s:%(asctime)s.%(msecs)03d -- %(message)s"
@@ -33,12 +34,17 @@ class slave:
             logging.info("wait for connection...")
             self.conn, addr = self.sock.accept()
             logging.info('Connected by %s'%(addr[0]))
-            obj = self.receive_json()
-            content = obj.get('content')
-            style = obj.get('style')
-            self.receive_file(os.path.join(self.conf.get('runtime','content_dir'),content))
-            self.receive_file(os.path.join(self.conf.get('runtime','style_dir'),style))
-            self.transfer('content.jpg','style.jpg')
+            args = self.receive_json()
+            content = os.path.split(args.get('content'))[1]
+            style = os.path.split(args.get('style'))[1]
+            args["gpu_id"] = self.conf.getint("runtime",'gpu_id')
+            args["content"] = os.path.join(self.conf.get('runtime','content_dir'),content)
+            args["style"] = os.path.join(self.conf.get('runtime','style_dir'),style)
+            print args
+            self.receive_file(args["content"])
+            self.receive_file(args["style"])
+            trans = transfer(args,send_result)
+            #trans.process()
             # data = conn.recv(1024)
             # print data
             # conn.send("slave receive your order. Your order is '%s'"%data)
@@ -49,7 +55,7 @@ class slave:
         data = self.conn.recv(unpacker.size)
         length = unpacker.unpack(data)[0]
         jstr = self.conn.recv(length)
-        obj  = json.loads(jstr)
+        obj  = yaml.safe_load(jstr)
         return obj
 
     def receive_int(self):
@@ -59,25 +65,22 @@ class slave:
 
     #receive the image to be transferred
     def receive_file(self,filename,chunk_size=1024):
-        f = open(filename,'wb')
+        f = open(filename, 'wb')
         print 'Receiving...'
         file_size = self.receive_int()
-        while file_size>0:
-            if file_size>chunk_size:
+        print "filesize:",file_size
+        while file_size > 0:
+            if file_size > chunk_size:
                 chunk = self.conn.recv(chunk_size)
-                file_size -= chunk_size
             else:
                 chunk = self.conn.recv(file_size)
-                file_size=0
+            file_size -= len(chunk)
             f.write(chunk)
         self.conn.send("Done")
         f.close()
 
-    def transfer(self,content,style):
-        logging.info('Transferring...')
-        time.sleep(5)
-        logging.info('Transfer Done...')
-        pass
+def send_result(result):
+    logging.info('Sending result %s to web server...'%result)
 
 if __name__=="__main__":
     conf = ConfigParser.ConfigParser()
