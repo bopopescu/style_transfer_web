@@ -5,6 +5,7 @@ from django.http import HttpResponse,HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from .forms import UploadFileForm
+from .handlers import handle_upload_file
 
 from .models import Task,Slave
 def index(request):
@@ -27,7 +28,7 @@ def upload(request):
         if form.is_valid():
             content = request.FILES['content']
             style = request.FILES['style']
-            print content,type(content)
+            handle_upload_file(request,content,style)
             return HttpResponseRedirect('/tasks')
         else:
             print 'invalid form'
@@ -39,5 +40,5 @@ def upload(request):
 @login_required
 def task_list(request):
     tasks = Task.objects.filter(user=request.user)
-    output = ', '.join([t.content for t in tasks])
+    output = ', '.join([t.output for t in tasks])
     return HttpResponse(output)
