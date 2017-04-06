@@ -5,5 +5,5 @@ class UploadFileForm(forms.Form):
     style = forms.FileField()
 
 class OutputUpload(forms.Form):
-    task_id = forms.IntegerField()
+    args = forms.CharField()
     output = forms.FileField()

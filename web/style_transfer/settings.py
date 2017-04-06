@@ -124,6 +124,7 @@ LOGIN_URL = '/login'
 
 CONTENT_DIR= os.path.join(BASE_DIR,'storage','content')
 STYLE_DIR = os.path.join(BASE_DIR,'storage','style')
+OUTPUT_DIR =  os.path.join(BASE_DIR,'storage','output')
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR,'storage'),

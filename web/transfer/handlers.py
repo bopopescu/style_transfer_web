@@ -6,8 +6,8 @@ from .master import master
 import uuid
 import os
 def handle_upload_file(request,content,style):
-    print settings.CONTENT_DIR
-    print content,style
+    # print settings.CONTENT_DIR
+    # print content,style
     content_storage = os.path.join(settings.CONTENT_DIR,str(uuid.uuid4())+os.path.splitext(content.name)[1])
     style_storage = os.path.join(settings.STYLE_DIR, str(uuid.uuid4())+os.path.splitext(style.name)[1])
     with open(content_storage,'wb') as destination:
@@ -22,5 +22,19 @@ def handle_upload_file(request,content,style):
     task.save()
     m = master()
     args = {'task_id':task.id,'content': content_storage, 'style': style_storage, 'model': 'vgg16', 'ratio': 1e4}
-    m.dispatch('10.0.0.64', 8667, args)
-    print task.id
+    # m.dispatch('10.0.0.64', 8667, args)
+    print "New task:{0}".format(args)
+    m.dispatch('127.0.0.1', 8666, args)
+
+def handle_output_file(args,output):
+    # print settings.OUTPUT_DIR
+    # print args,output
+    output_storage = os.path.join(settings.OUTPUT_DIR,str(uuid.uuid4())+os.path.splitext(output.name)[1])
+    with open(output_storage,'wb') as destination:
+        for chunk in output.chunks():
+            destination.write(chunk)
+        destination.close()
+    task = Task.objects.get(pk=args['task_id'])
+    task.output = output_storage
+    task.save()
+    print "task:{0} get the output.Save to{1}".format(task.id,task.output)

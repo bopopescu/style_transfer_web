@@ -55,5 +55,5 @@ class master:
 if __name__ == "__main__":
     master = master()
     args = {'task_id':2,'content':'sanfrancisco.jpg','style':'starry_night.jpg','model':'vgg16','ratio':1e4}
-    master.dispatch('10.0.0.64',8667,args)
-    # master.dispatch('127.0.0.1', 8666, args)
+    # master.dispatch('10.0.0.64',8667,args)
+    master.dispatch('127.0.0.1', 8666, args)

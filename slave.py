@@ -8,6 +8,7 @@ import os
 import time
 from transfer import transfer
 import yaml
+import requests
 
 # logging
 LOG_FORMAT = "%(filename)s:%(funcName)s:%(asctime)s.%(msecs)03d -- %(message)s"
@@ -43,8 +44,8 @@ class slave:
             print args
             self.receive_file(args["content"])
             self.receive_file(args["style"])
-            trans = transfer(args,send_result)
-            #trans.process()
+            trans = transfer(args,self.send_result)
+            trans.process()
             # data = conn.recv(1024)
             # print data
             # conn.send("slave receive your order. Your order is '%s'"%data)
@@ -79,8 +80,18 @@ class slave:
         self.conn.send("Done")
         f.close()
 
-def send_result(result):
-    logging.info('Sending result %s to web server...'%result)
+    def send_result(self,args,result):
+        args['output'] = result
+        url = self.conf.get("transmission","upload_url")
+        client = requests.Session()
+        r = client.get(url)  # sets cookie
+        print r.text,'\n',r.cookies['csrftoken']
+        csrf_token = r.cookies['csrftoken']
+        files = {'output': (os.path.split(result)[1], open(result, 'rb'))}
+        print files
+        r = client.post(url,data={'csrfmiddlewaretoken': csrf_token,"args":yaml.safe_dump(args)},files=files)
+        logging.info('Sending result %s to web server...'%result)
+        logging.info(r.text)
 
 if __name__=="__main__":
     conf = ConfigParser.ConfigParser()
