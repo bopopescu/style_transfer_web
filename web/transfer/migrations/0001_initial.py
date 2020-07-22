@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Slave',
+            name='Subordinate',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('addr', models.CharField(max_length=200)),
@@ -36,7 +36,7 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.AddField(
-            model_name='slave',
+            model_name='subordinate',
             name='task',
             field=models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, to='transfer.Task'),
         ),

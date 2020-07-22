@@ -1,8 +1,8 @@
 #encoding=utf8
 from django.conf import settings
 from django.utils import timezone
-from .models import Task,Slave
-from .master import master
+from .models import Task,Subordinate
+from .main import main
 import uuid
 import os
 def handle_upload_file(request,content,style):
@@ -20,7 +20,7 @@ def handle_upload_file(request,content,style):
         destination.close()
     task = Task(content=content_storage,style=style_storage,user=request.user,sub_time=timezone.now())
     task.save()
-    m = master()
+    m = main()
     args = {'task_id':task.id,'content': content_storage, 'style': style_storage, 'model': 'vgg16', 'ratio': 1e4}
     # m.dispatch('10.0.0.64', 8667, args)
     print "New task:{0}".format(args)

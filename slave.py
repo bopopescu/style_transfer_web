@@ -13,18 +13,18 @@ import requests
 # logging
 LOG_FORMAT = "%(filename)s:%(funcName)s:%(asctime)s.%(msecs)03d -- %(message)s"
 
-class slave:
+class subordinate:
     conf = None
     sock = None
     host = None
     port =None
-    conn = None #保存和master的socket
+    conn = None #保存和main的socket
     #start listening
     def __init__(self,conf):
         self.conf =conf
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.host = conf.get("transmission", "slave_ip")
-        self.port = conf.getint("transmission", "slave_port")
+        self.host = conf.get("transmission", "subordinate_ip")
+        self.port = conf.getint("transmission", "subordinate_port")
 
     def start(self):
 
@@ -48,7 +48,7 @@ class slave:
             trans.process()
             # data = conn.recv(1024)
             # print data
-            # conn.send("slave receive your order. Your order is '%s'"%data)
+            # conn.send("subordinate receive your order. Your order is '%s'"%data)
 
     #json
     def receive_json(self):
@@ -97,5 +97,5 @@ if __name__=="__main__":
     conf = ConfigParser.ConfigParser()
     conf.read('./client.config')
     logging.basicConfig(format=LOG_FORMAT, datefmt="%H:%M:%S", level=logging.INFO)
-    slave =slave(conf)
-    slave.start()
+    subordinate =subordinate(conf)
+    subordinate.start()
